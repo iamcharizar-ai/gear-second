@@ -4,9 +4,11 @@
     {
       "name": "strong",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 5173,
-      "env": { "VITE_SUPABASE_DISABLE": "1" }
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 5173
     }
   ]
 }

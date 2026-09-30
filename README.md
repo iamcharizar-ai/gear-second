@@ -1,32 +1,40 @@
-# React + TypeScript + Vite
+# STRONG // Gear Second
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A pixel-art hypertrophy workout log. Named for Luffy's Gear Second: pump the blood, get stronger.
 
-Currently, two official plugins are available:
+Built as a lean, one-person replacement for the core loop of big workout apps: **start a routine → log sets against last time → superset to save time → finish → see your records.** No social feed, no paywall, no rest timer, no set types (every set is a working set, taken to failure).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What it does
 
-## React Compiler
+- **Routines** with sets and a rep range per exercise, and supersets (link any exercise with the one below it; groups of 2+ run back to back).
+- **Live workout** that survives closing the tab: every tap is saved on the device. The screen stays awake while you train.
+- **PREVIOUS column** shows what you did last time for each set.
+- **Double progression built in**: inside a rep range, if every set last time hit the top of the range the app suggests **+2.5 kg** and drops you back to the bottom of the range; otherwise it asks you to beat last time's reps. Suggestions sit in the inputs as placeholders, so ticking an empty set logs the suggestion.
+- **Superset flow**: ticking a set jumps you to the same set of the partner exercise.
+- **Records** on finish: heaviest weight, best estimated 1RM, best set volume, most reps, longest hold.
+- **Weekly sets per muscle** on a pixel body map (target band 10-20 working sets; secondary muscles count half).
+- **Exercise pages** with records, a progress chart and every session logged.
+- Exercise types: weight × reps, bodyweight reps, weighted bodyweight (log the added kg), assisted bodyweight, and timed holds. Custom exercises supported.
+- Installable PWA, works offline. Data is local to the device for now: use **History → Backup → Export** now and then.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run it
 
-## Expanding the Oxlint configuration
+    npm install
+    npm run dev      # http://localhost:5173
+    npm run build
+    npm run icons    # regenerate the straw-hat PWA icons
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Code map
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+- `src/lib/store.ts` — routines, history, the live workout; localStorage persistence
+- `src/lib/stats.ts` — previous sets, progression targets, records, weekly muscle volume
+- `src/lib/supersets.ts` — superset grouping and list moves (shared by workout + routine editor)
+- `src/lib/art.ts` — palette, pixel glyphs, body map, icon art
+- `src/data/exercises.ts` — the exercise library (ids are permanent: logs reference them)
+- `src/data/templates.ts` — seeded routines
+- `src/screens/` — Home, Workout, Session (finish summary), History, ExerciseDetail, RoutineEditor
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Next
+
+- Sync through the shared Supabase ledger with LifeOS (Gym habit + XP), so phone and desktop share one history.
+- Arbor skill add-ons appended to the gym session.
