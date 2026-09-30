@@ -1,7 +1,7 @@
 // Offline app shell: hashed /assets/ are immutable → cache-first; the page is
 // network-first with a short timeout and a cached fallback, so the gym's bad
 // signal never blocks opening a workout. Bump CACHE when the strategy changes.
-const CACHE = 'strong-shell-v1'
+const CACHE = 'strong-shell-v2'
 const PAGE_TIMEOUT_MS = 2500
 
 self.addEventListener('install', (e) => {

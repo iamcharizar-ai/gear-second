@@ -1,8 +1,9 @@
-import { MUSCLES, MUSCLE_LABEL } from '../data/exercises'
+import { ChevronRight, Dumbbell, Pencil, Play, Plus } from 'lucide-react'
 import { exerciseById, startWorkout, useStore } from '../lib/store'
-import { WEEKLY_SETS, fmtDuration, weeklyMuscleSets } from '../lib/stats'
+import { fmtDuration, weekStart } from '../lib/stats'
+import { muscleSetsIn } from '../lib/insights'
 import { confirmDialog } from '../lib/confirm'
-import { BodyMap, Hat, Px } from '../components/Pixel'
+import { MuscleOverview } from '../components/MuscleOverview'
 
 export function Home({
   onOpenWorkout,
@@ -14,7 +15,7 @@ export function Home({
   onOpenSession: (id: string) => void
 }) {
   const s = useStore()
-  const week = weeklyMuscleSets(s)
+  const week = muscleSetsIn(s, [weekStart().toISOString(), new Date(Date.now() + 60_000).toISOString()])
   const last = s.workouts[0]
 
   const start = async (routineId: string | null) => {
@@ -23,19 +24,16 @@ export function Home({
     onOpenWorkout()
   }
 
-  const trained = MUSCLES.filter((m) => (week[m] ?? 0) > 0)
-  const untrained = MUSCLES.filter((m) => !(week[m] ?? 0))
-
   return (
     <div className="screen">
       <header className="brandbar">
-        <Hat scale={2} />
-        <h1>STRONG</h1>
+        <span className="logo" aria-hidden="true"><Dumbbell size={22} strokeWidth={2.75} /></span>
+        <h1>Strong</h1>
       </header>
 
       {s.active && (
         <button type="button" className="resume" onClick={onOpenWorkout}>
-          <Px name="play" />
+          <Play size={20} strokeWidth={2.75} fill="currentColor" aria-hidden="true" />
           <span>
             <b>{s.active.name}</b>
             <small>in progress · started {fmtDuration(Date.now() - new Date(s.active.startedAt).getTime())} ago</small>
@@ -45,15 +43,15 @@ export function Home({
       )}
 
       <button type="button" className="btn wide" onClick={() => start(null)}>
-        <Px name="plus" /> Start empty workout
+        <Plus size={18} strokeWidth={2.75} aria-hidden="true" /> Start empty workout
       </button>
 
       <section>
         <div className="section-head">
           <h2>Routines</h2>
-          <button type="button" className="btn sm" onClick={() => onEditRoutine(null)}><Px name="plus" /> New</button>
+          <button type="button" className="btn sm" onClick={() => onEditRoutine(null)}><Plus size={16} strokeWidth={2.75} aria-hidden="true" /> New</button>
         </div>
-        {s.routines.length === 0 && <p className="empty">No routines yet.</p>}
+        {s.routines.length === 0 && <p className="card empty">No routines yet.</p>}
         {s.routines.map((r) => (
           <div key={r.id} className="card routine">
             <div className="routine-main">
@@ -61,51 +59,30 @@ export function Home({
               <p>{r.items.map((it) => exerciseById(it.exerciseId, s).name).join(' · ') || 'No exercises'}</p>
             </div>
             <div className="routine-actions">
-              <button type="button" className="icon-btn" onClick={() => onEditRoutine(r.id)} aria-label={`Edit ${r.name}`}><Px name="pencil" /></button>
+              <button type="button" className="icon-btn" onClick={() => onEditRoutine(r.id)} aria-label={`Edit ${r.name}`}><Pencil size={18} strokeWidth={2.5} /></button>
               <button type="button" className="btn primary sm" onClick={() => start(r.id)} disabled={!r.items.length}>Start</button>
             </div>
           </div>
         ))}
       </section>
 
-      <section>
+      <section className="card">
         <div className="section-head">
           <h2>This week</h2>
-          <span className="muted">sets per muscle · target {WEEKLY_SETS.min}-{WEEKLY_SETS.max}</span>
+          <span className="muted">since Monday · tap a muscle</span>
         </div>
-        <div className="card week">
-          <BodyMap sets={week} scale={4} />
-          <div className="week-side">
-          {trained.length === 0 && <p className="week-empty">Nothing trained yet this week.</p>}
-          <ul className="muscle-bars">
-            {trained.map((m) => {
-              const v = week[m] ?? 0
-              const pct = Math.min(100, (v / WEEKLY_SETS.max) * 100)
-              const cls = v === 0 ? 'zero' : v < WEEKLY_SETS.min ? 'low' : v <= WEEKLY_SETS.max ? 'good' : 'over'
-              return (
-                <li key={m} className={cls}>
-                  <span className="m-name">{MUSCLE_LABEL[m]}</span>
-                  <span className="m-bar"><i style={{ width: `${pct}%` }} /><b style={{ left: `${(WEEKLY_SETS.min / WEEKLY_SETS.max) * 100}%` }} /></span>
-                  <span className="m-n">{Math.round(v * 10) / 10}</span>
-                </li>
-              )
-            })}
-          </ul>
-          {trained.length > 0 && untrained.length > 0 && (
-            <p className="untrained">Not trained: {untrained.map((m) => MUSCLE_LABEL[m]).join(', ')}</p>
-          )}
-          </div>
-        </div>
+        <MuscleOverview sets={week} weeks={1} />
       </section>
 
       {last && (
-        <section>
-          <div className="section-head"><h2>Last workout</h2></div>
-          <button type="button" className="card last" onClick={() => onOpenSession(last.id)}>
+        <button type="button" className="card row-card" onClick={() => onOpenSession(last.id)}>
+          <span className="row-main">
+            <small className="eyebrow">Last workout</small>
             <b>{last.name}</b>
             <small>{new Date(last.finishedAt).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} · {fmtDuration(new Date(last.finishedAt).getTime() - new Date(last.startedAt).getTime())}</small>
-          </button>
-        </section>
+          </span>
+          <ChevronRight size={20} aria-hidden="true" />
+        </button>
       )}
     </div>
   )

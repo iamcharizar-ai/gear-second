@@ -1,6 +1,6 @@
 // Training math: last session's numbers, next-session targets (double
 // progression), personal records and weekly sets per muscle.
-import type { DoneSet, ExType, Muscle, Workout } from './types'
+import type { DoneSet, ExType, Workout } from './types'
 import { exerciseById, type State } from './store'
 
 export const INCREMENT_KG = 2.5
@@ -187,20 +187,6 @@ export function weekStart(d = new Date()): Date {
   return s
 }
 
-/** Working sets per muscle since Monday: a primary muscle counts 1, a secondary ½. */
-export function weeklyMuscleSets(s: State, now = new Date()): Record<Muscle, number> {
-  const from = weekStart(now).toISOString()
-  const out = {} as Record<Muscle, number>
-  for (const w of s.workouts) {
-    if (w.finishedAt < from) continue
-    for (const e of w.exercises) {
-      const ex = exerciseById(e.exerciseId, s)
-      for (const m of ex.primary) out[m] = (out[m] ?? 0) + e.sets.length
-      for (const m of ex.secondary) out[m] = (out[m] ?? 0) + e.sets.length / 2
-    }
-  }
-  return out
-}
 
 /** Every session of one exercise, newest first. */
 export function exerciseSessions(exerciseId: string, s: State) {

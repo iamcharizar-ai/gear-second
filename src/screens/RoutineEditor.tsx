@@ -5,7 +5,7 @@ import { linkNext, move, remove, supersetLabels, unlink } from '../lib/supersets
 import type { Routine, RoutineItem } from '../lib/types'
 import { confirmDialog } from '../lib/confirm'
 import { ExercisePicker } from '../components/ExercisePicker'
-import { Px } from '../components/Pixel'
+import { ArrowDown, ArrowUp, ChevronLeft, Link2, Minus, Plus, StickyNote, Trash2 } from 'lucide-react'
 
 const DEFAULT = { sets: 3, repMin: 8, repMax: 12 }
 const clampInt = (v: string, lo: number, hi: number) => Math.max(lo, Math.min(hi, parseInt(v, 10) || lo))
@@ -35,7 +35,7 @@ export function RoutineEditor({ id, onDone }: { id: string | null; onDone: () =>
   return (
     <div className="screen">
       <header className="topbar">
-        <button type="button" className="icon-btn" onClick={back} aria-label="Back"><Px name="back" /></button>
+        <button type="button" className="icon-btn" onClick={back} aria-label="Back"><ChevronLeft size={18} strokeWidth={2.5} aria-hidden="true" /></button>
         <input
           className="title-input"
           value={draft.name}
@@ -70,9 +70,9 @@ export function RoutineEditor({ id, onDone }: { id: string | null; onDone: () =>
             <div className="plan-row">
               <label>Sets
                 <span className="stepper">
-                  <button type="button" onClick={() => patch(it.uid, { sets: Math.max(1, it.sets - 1) })} aria-label="Fewer sets"><Px name="minus" u={1.5} /></button>
+                  <button type="button" onClick={() => patch(it.uid, { sets: Math.max(1, it.sets - 1) })} aria-label="Fewer sets"><Minus size={15} strokeWidth={2.5} aria-hidden="true" /></button>
                   <b>{it.sets}</b>
-                  <button type="button" onClick={() => patch(it.uid, { sets: Math.min(12, it.sets + 1) })} aria-label="More sets"><Px name="plus" u={1.5} /></button>
+                  <button type="button" onClick={() => patch(it.uid, { sets: Math.min(12, it.sets + 1) })} aria-label="More sets"><Plus size={15} strokeWidth={2.5} aria-hidden="true" /></button>
                 </span>
               </label>
               <label>{timed ? 'Seconds' : 'Reps'}
@@ -87,18 +87,18 @@ export function RoutineEditor({ id, onDone }: { id: string | null; onDone: () =>
               <textarea className="note" rows={1} placeholder="Note (setup, cues)" value={it.note} autoFocus={!it.note} onChange={(e) => patch(it.uid, { note: e.target.value })} />
             )}
             <div className="menu-row">
-              {i < draft.items.length - 1 && !joined && <button type="button" onClick={() => setItems((l) => linkNext(l, it.uid))}><Px name="link" /> Superset with next</button>}
-              {it.superset && <button type="button" onClick={() => setItems((l) => unlink(l, it.uid))}><Px name="link" /> Unlink</button>}
-              {!it.note && !openNotes.includes(it.uid) && <button type="button" className="icon" onClick={() => setOpenNotes((n) => [...n, it.uid])} aria-label="Add note"><Px name="note" /></button>}
-              {i > 0 && <button type="button" className="icon" onClick={() => setItems((l) => move(l, it.uid, -1))} aria-label="Move up"><Px name="up" /></button>}
-              {i < draft.items.length - 1 && <button type="button" className="icon" onClick={() => setItems((l) => move(l, it.uid, 1))} aria-label="Move down"><Px name="down" /></button>}
-              <button type="button" className="icon danger" onClick={() => setItems((l) => remove(l, it.uid))} aria-label={`Remove ${def.name}`}><Px name="trash" /></button>
+              {i < draft.items.length - 1 && !joined && <button type="button" onClick={() => setItems((l) => linkNext(l, it.uid))}><Link2 size={18} strokeWidth={2.5} aria-hidden="true" /> Superset with next</button>}
+              {it.superset && <button type="button" onClick={() => setItems((l) => unlink(l, it.uid))}><Link2 size={18} strokeWidth={2.5} aria-hidden="true" /> Unlink</button>}
+              {!it.note && !openNotes.includes(it.uid) && <button type="button" className="icon" onClick={() => setOpenNotes((n) => [...n, it.uid])} aria-label="Add note"><StickyNote size={18} strokeWidth={2.5} aria-hidden="true" /></button>}
+              {i > 0 && <button type="button" className="icon" onClick={() => setItems((l) => move(l, it.uid, -1))} aria-label="Move up"><ArrowUp size={18} strokeWidth={2.5} aria-hidden="true" /></button>}
+              {i < draft.items.length - 1 && <button type="button" className="icon" onClick={() => setItems((l) => move(l, it.uid, 1))} aria-label="Move down"><ArrowDown size={18} strokeWidth={2.5} aria-hidden="true" /></button>}
+              <button type="button" className="icon danger" onClick={() => setItems((l) => remove(l, it.uid))} aria-label={`Remove ${def.name}`}><Trash2 size={18} strokeWidth={2.5} aria-hidden="true" /></button>
             </div>
           </section>
         )
       })}
 
-      <button type="button" className="btn primary wide" onClick={() => setPicker(true)}><Px name="plus" /> Add exercises</button>
+      <button type="button" className="btn primary wide" onClick={() => setPicker(true)}><Plus size={18} strokeWidth={2.5} aria-hidden="true" /> Add exercises</button>
       {original && (
         <button
           type="button"
@@ -110,7 +110,7 @@ export function RoutineEditor({ id, onDone }: { id: string | null; onDone: () =>
             }
           }}
         >
-          <Px name="trash" /> Delete routine
+          <Trash2 size={18} strokeWidth={2.5} aria-hidden="true" /> Delete routine
         </button>
       )}
 

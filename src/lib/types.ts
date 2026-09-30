@@ -2,6 +2,7 @@
 // Supabase ledger later without reshaping.
 
 export type Muscle =
+  | 'chest-upper'
   | 'chest'
   | 'front-delts'
   | 'side-delts'
@@ -16,6 +17,7 @@ export type Muscle =
   | 'abs'
   | 'obliques'
   | 'quads'
+  | 'adductors'
   | 'hamstrings'
   | 'glutes'
   | 'calves'

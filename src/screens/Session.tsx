@@ -3,7 +3,12 @@ import { dateLabel, fmtDuration, fmtSet, prsIn, setCount, workoutVolume } from '
 import { supersetLabels } from '../lib/supersets'
 import type { Routine, Workout } from '../lib/types'
 import { confirmDialog } from '../lib/confirm'
-import { Hat, Px } from '../components/Pixel'
+import { ChevronLeft, Trash2, Trophy } from 'lucide-react'
+import { MUSCLES, MUSCLE_LABEL } from '../data/exercises'
+import { muscleSetsOf } from '../lib/insights'
+import { heat } from '../lib/theme'
+import { BodyMap } from '../components/BodyMap'
+import { MuscleBars } from '../components/Charts'
 
 
 /** Turn a finished workout into a routine, keeping rep ranges from its source routine when known. */
@@ -56,24 +61,25 @@ export function Session({
   if (!w) {
     return (
       <div className="screen">
-        <header className="pagebar"><button type="button" className="icon-btn" onClick={onBack} aria-label="Back"><Px name="back" /></button><h1>Workout</h1></header>
+        <header className="pagebar"><button type="button" className="icon-btn" onClick={onBack} aria-label="Back"><ChevronLeft size={20} strokeWidth={2.75} /></button><h1>Workout</h1></header>
         <p className="empty">This workout no longer exists.</p>
       </div>
     )
   }
   const prs = prsIn(w, s)
+  const split = muscleSetsOf([w], s)
   const labels = supersetLabels(w.exercises.map((e, i) => ({ uid: String(i), superset: e.superset })))
 
   return (
     <div className="screen">
       <header className="pagebar">
-        <button type="button" className="icon-btn" onClick={onBack} aria-label="Back"><Px name="back" /></button>
+        <button type="button" className="icon-btn" onClick={onBack} aria-label="Back"><ChevronLeft size={20} strokeWidth={2.75} /></button>
         <h1>{celebrate ? 'Done' : 'Workout'}</h1>
       </header>
 
       {celebrate && (
         <div className="celebrate">
-          <Hat scale={4} />
+          <span className="celebrate-badge" aria-hidden="true"><Trophy size={34} strokeWidth={2.5} /></span>
           <h2>Workout complete</h2>
           {prs.length > 0 && <p className="gold">{prs.length} new record{prs.length > 1 ? 's' : ''}</p>}
         </div>
@@ -90,13 +96,22 @@ export function Session({
         {w.note && <p className="session-note">{w.note}</p>}
       </div>
 
+      <section className="card">
+        <div className="section-head"><h2>Muscles worked</h2><span className="muted">sets</span></div>
+        <BodyMap color={(m) => heat(split[m] ?? 0, [2, 4, 6, 8])} height={300} label="Muscles worked in this workout" />
+        <MuscleBars
+          rows={MUSCLES.filter((m) => split[m]).map((m) => ({ key: m, label: MUSCLE_LABEL[m], value: split[m] ?? 0 }))}
+          unit="sets"
+        />
+      </section>
+
       {prs.length > 0 && (
         <section>
           <div className="section-head"><h2>Records</h2></div>
           <ul className="card pr-list">
             {prs.map((p, i) => (
               <li key={i}>
-                <Px name="trophy" className="gold" />
+                <Trophy size={18} strokeWidth={2.5} className="ic-pr" aria-hidden="true" />
                 <span className="pr-text">{exerciseById(p.exerciseId, s).name}<small>{p.label}</small></span>
                 <b>{p.value}</b>
               </li>
@@ -111,7 +126,7 @@ export function Session({
           const l = e.superset ? labels.get(e.superset) : null
           return (
             <div key={i} className={`card ex-summary ${l ? 'in-ss' : ''}`} style={l ? ({ '--ss': l.color } as React.CSSProperties) : undefined}>
-              <button type="button" className="ex-name" onClick={() => onOpenExercise(def.id)}>
+              <button type="button" className="ex-title" onClick={() => onOpenExercise(def.id)}>
                 {l && <span className="ss-tag">{l.letter}</span>}{def.name}
               </button>
               <ol className="done-sets">
@@ -146,7 +161,7 @@ export function Session({
             }
           }}
         >
-          <Px name="trash" /> Delete workout
+          <Trash2 size={18} strokeWidth={2.5} aria-hidden="true" /> Delete workout
         </button>
       </div>
     </div>

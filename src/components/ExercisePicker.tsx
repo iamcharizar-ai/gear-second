@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { MUSCLES, MUSCLE_LABEL, TYPE_LABEL } from '../data/exercises'
 import { addCustomExercise, allExercises, useStore } from '../lib/store'
 import type { Equipment, ExType, Muscle } from '../lib/types'
-import { Px } from './Pixel'
+import { Check, ChevronLeft, Plus, Search, X } from 'lucide-react'
 
 const EQUIPMENT: Equipment[] = ['barbell', 'dumbbell', 'cable', 'machine', 'bodyweight', 'smith', 'ez-bar', 'other']
 
@@ -60,7 +60,7 @@ export function ExercisePicker({
   return (
     <div className="sheet">
       <header className="sheet-head">
-        <button type="button" className="icon-btn" onClick={onClose} aria-label="Close"><Px name="close" /></button>
+        <button type="button" className="icon-btn" onClick={onClose} aria-label="Close"><X size={18} strokeWidth={2.5} aria-hidden="true" /></button>
         <h2>{multi ? 'Add exercises' : 'Replace exercise'}</h2>
         {multi && (
           <button type="button" className="btn primary sm" disabled={!picked.length} onClick={() => onPick(picked)}>
@@ -69,7 +69,7 @@ export function ExercisePicker({
         )}
       </header>
       <div className="search">
-        <Px name="search" />
+        <Search size={18} strokeWidth={2.5} aria-hidden="true" />
         <input ref={input} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search exercises" aria-label="Search exercises" />
       </div>
       <div className="chips scroll-x" role="group" aria-label="Filter by muscle">
@@ -90,14 +90,14 @@ export function ExercisePicker({
                   <span className="pick-name">{e.name}</span>
                   <span className="pick-sub">{e.primary.map((m) => MUSCLE_LABEL[m]).join(', ')} · {e.equipment}</span>
                 </span>
-                {multi && <span className="tick">{on && <Px name="check" />}</span>}
+                {multi && <span className="tick">{on && <Check size={18} strokeWidth={2.5} aria-hidden="true" />}</span>}
               </button>
             </li>
           )
         })}
       </ul>
       <button type="button" className="btn ghost wide" onClick={() => setCreating(true)}>
-        <Px name="plus" /> Create {q.trim() ? `"${q.trim()}"` : 'custom exercise'}
+        <Plus size={18} strokeWidth={2.5} aria-hidden="true" /> Create {q.trim() ? `"${q.trim()}"` : 'custom exercise'}
       </button>
     </div>
   )
@@ -115,7 +115,7 @@ function CreateExercise({ initialName, onCancel, onCreated }: { initialName: str
   return (
     <div className="sheet">
       <header className="sheet-head">
-        <button type="button" className="icon-btn" onClick={onCancel} aria-label="Back"><Px name="back" /></button>
+        <button type="button" className="icon-btn" onClick={onCancel} aria-label="Back"><ChevronLeft size={18} strokeWidth={2.5} aria-hidden="true" /></button>
         <h2>New exercise</h2>
         <button type="button" className="btn primary sm" disabled={!name.trim()} onClick={save}>Save</button>
       </header>

@@ -55,7 +55,7 @@ export function remove<T extends Item>(list: T[], id: string): T[] {
   return normalize(list.filter((x) => x.uid !== id))
 }
 
-const COLORS = ['var(--straw)', 'var(--sea)', 'var(--red)', 'var(--orange)']
+const COLORS = ['var(--blue)', 'var(--pink)', 'var(--orange)', 'var(--violet)']
 
 /** Letter + colour for each superset in display order. */
 export function supersetLabels<T extends Item>(list: T[]): Map<string, { letter: string; color: string }> {

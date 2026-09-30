@@ -6,7 +6,7 @@ import { linkNext, move, normalize, remove, supersetLabels, unlink } from '../li
 import type { DoneSet, Exercise, LiveExercise, LiveSet } from '../lib/types'
 import { confirmDialog } from '../lib/confirm'
 import { ExercisePicker } from '../components/ExercisePicker'
-import { Px } from '../components/Pixel'
+import { ArrowDown, ArrowLeftRight, ArrowUp, Check, ChevronLeft, Ellipsis, Link2, Minus, Plus, StickyNote, Trash2 } from 'lucide-react'
 
 // ── mutations on the live workout ───────────────────────────────────────────
 const patchEx = (u: string, fn: (e: LiveExercise) => LiveExercise) =>
@@ -99,7 +99,7 @@ export function WorkoutScreen({
   return (
     <div className="screen workout">
       <header className="topbar">
-        <button type="button" className="icon-btn" onClick={onMinimize} aria-label="Back to home (workout keeps running)"><Px name="back" /></button>
+        <button type="button" className="icon-btn" onClick={onMinimize} aria-label="Back to home (workout keeps running)"><ChevronLeft size={18} strokeWidth={2.5} aria-hidden="true" /></button>
         <input
           className="title-input"
           value={w.name}
@@ -143,7 +143,7 @@ export function WorkoutScreen({
       {!w.exercises.length && <p className="empty">Add your first exercise to get going.</p>}
 
       <button type="button" className="btn primary wide" onClick={() => setPicker({ replace: null })}>
-        <Px name="plus" /> Add exercise
+        <Plus size={18} strokeWidth={2.5} aria-hidden="true" /> Add exercise
       </button>
       <button type="button" className="btn danger-ghost wide" onClick={discard}>Discard workout</button>
 
@@ -221,18 +221,18 @@ const ExerciseCard = memo(function ExerciseCard({
           </small>
         </button>
         <button type="button" className={`icon-btn ${menu ? 'on' : ''}`} onClick={() => setMenu((m) => !m)} aria-label="Exercise options" aria-expanded={menu}>
-          <Px name="dots" />
+          <Ellipsis size={18} strokeWidth={2.5} aria-hidden="true" />
         </button>
       </div>
 
       {menu && (
         <div className="menu-row">
-          {!last && !nextInGroup && <button type="button" onClick={() => act(() => listOp((l) => linkNext(l, ex.uid)))}><Px name="link" /> Superset with next</button>}
-          {ex.superset && <button type="button" onClick={() => act(() => listOp((l) => unlink(l, ex.uid)))}><Px name="link" /> Remove from superset</button>}
-          {!first && <button type="button" onClick={() => act(() => listOp((l) => move(l, ex.uid, -1)))}><Px name="up" /> Up</button>}
-          {!last && <button type="button" onClick={() => act(() => listOp((l) => move(l, ex.uid, 1)))}><Px name="down" /> Down</button>}
-          <button type="button" onClick={() => act(() => setNoteOpen(true))}><Px name="note" /> Note</button>
-          <button type="button" onClick={() => act(() => onReplace(ex.uid))}><Px name="swap" /> Replace</button>
+          {!last && !nextInGroup && <button type="button" onClick={() => act(() => listOp((l) => linkNext(l, ex.uid)))}><Link2 size={18} strokeWidth={2.5} aria-hidden="true" /> Superset with next</button>}
+          {ex.superset && <button type="button" onClick={() => act(() => listOp((l) => unlink(l, ex.uid)))}><Link2 size={18} strokeWidth={2.5} aria-hidden="true" /> Remove from superset</button>}
+          {!first && <button type="button" onClick={() => act(() => listOp((l) => move(l, ex.uid, -1)))}><ArrowUp size={18} strokeWidth={2.5} aria-hidden="true" /> Up</button>}
+          {!last && <button type="button" onClick={() => act(() => listOp((l) => move(l, ex.uid, 1)))}><ArrowDown size={18} strokeWidth={2.5} aria-hidden="true" /> Down</button>}
+          <button type="button" onClick={() => act(() => setNoteOpen(true))}><StickyNote size={18} strokeWidth={2.5} aria-hidden="true" /> Note</button>
+          <button type="button" onClick={() => act(() => onReplace(ex.uid))}><ArrowLeftRight size={18} strokeWidth={2.5} aria-hidden="true" /> Replace</button>
           <button
             type="button"
             className="danger"
@@ -242,7 +242,7 @@ const ExerciseCard = memo(function ExerciseCard({
                 listOp((l) => normalize(remove(l, ex.uid)))
             }}
           >
-            <Px name="trash" /> Remove
+            <Trash2 size={18} strokeWidth={2.5} aria-hidden="true" /> Remove
           </button>
         </div>
       )}
@@ -258,11 +258,11 @@ const ExerciseCard = memo(function ExerciseCard({
         />
       )}
 
-      {plan.hint && <p className={`hint ${plan.up ? 'up' : ''}`}>{plan.up && <Px name="up" />} {plan.hint}</p>}
+      {plan.hint && <p className={`hint ${plan.up ? 'up' : ''}`}>{plan.up && <ArrowUp size={18} strokeWidth={2.5} aria-hidden="true" />} {plan.hint}</p>}
 
       <div className={`sets ${hasKg ? '' : 'no-kg'}`} role="table" aria-label={`${def.name} sets`}>
         <div className="set-row head" role="row">
-          <span>SET</span><span>PREVIOUS</span>{hasKg && <span>{kgHead}</span>}<span>{repHead}</span><span aria-label="Done"><Px name="check" u={1.5} /></span>
+          <span>SET</span><span>PREVIOUS</span>{hasKg && <span>{kgHead}</span>}<span>{repHead}</span><span aria-label="Done"><Check size={15} strokeWidth={2.5} aria-hidden="true" /></span>
         </div>
         {ex.sets.map((set, i) => {
           const t = plan.targets[Math.min(i, plan.targets.length - 1)]
@@ -293,7 +293,7 @@ const ExerciseCard = memo(function ExerciseCard({
                 onKeyDown={(e) => { if (e.key === 'Enter') tick(i) }}
               />
               <button type="button" className="tick" onClick={() => tick(i)} aria-pressed={set.done} aria-label={`Set ${i + 1} done`}>
-                <Px name="check" />
+                <Check size={18} strokeWidth={2.5} aria-hidden="true" />
               </button>
             </div>
           )
@@ -302,11 +302,11 @@ const ExerciseCard = memo(function ExerciseCard({
 
       <div className="set-actions">
         <button type="button" className="btn sm" onClick={() => patchEx(ex.uid, (e) => ({ ...e, sets: [...e.sets, { kg: '', reps: '', done: false }] }))}>
-          <Px name="plus" /> Set
+          <Plus size={18} strokeWidth={2.5} aria-hidden="true" /> Set
         </button>
         {ex.sets.length > 1 && (
           <button type="button" className="btn sm" onClick={() => patchEx(ex.uid, (e) => ({ ...e, sets: e.sets.slice(0, -1) }))}>
-            <Px name="minus" /> Set
+            <Minus size={18} strokeWidth={2.5} aria-hidden="true" /> Set
           </button>
         )}
       </div>

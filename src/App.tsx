@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useStore } from './lib/store'
 import { ConfirmHost } from './components/Confirm'
-import { Px } from './components/Pixel'
+import { ChartColumn, History as HistoryIcon, House, Play } from 'lucide-react'
 import { Home } from './screens/Home'
 import { History } from './screens/History'
+import { Stats } from './screens/Stats'
 import { WorkoutScreen } from './screens/Workout'
 import { Session } from './screens/Session'
 import { ExerciseDetail } from './screens/ExerciseDetail'
@@ -12,6 +13,7 @@ import { RoutineEditor } from './screens/RoutineEditor'
 type View =
   | { name: 'home' }
   | { name: 'history' }
+  | { name: 'stats' }
   | { name: 'workout' }
   | { name: 'session'; id: string; celebrate?: boolean }
   | { name: 'exercise'; id: string }
@@ -78,12 +80,13 @@ export default function App() {
   const openSession = (id: string) => go({ name: 'session', id })
   const editRoutine = (id: string | null) => go({ name: 'routine', id })
 
-  const tabs = shown.name === 'home' || shown.name === 'history'
+  const tabs = shown.name === 'home' || shown.name === 'history' || shown.name === 'stats'
 
   return (
     <div className={`app ${tabs ? 'has-tabs' : ''}`}>
       {shown.name === 'home' && <Home onOpenWorkout={() => go({ name: 'workout' })} onEditRoutine={editRoutine} onOpenSession={openSession} />}
       {shown.name === 'history' && <History onOpenSession={openSession} />}
+      {shown.name === 'stats' && <Stats onOpenSession={openSession} onOpenExercise={openExercise} />}
       {shown.name === 'workout' && (
         <WorkoutScreen
           onMinimize={back}
@@ -108,14 +111,17 @@ export default function App() {
         <nav className="tabbar" aria-label="Main">
           {s.active && (
             <button type="button" className="tab live" onClick={() => go({ name: 'workout' })}>
-              <Px name="play" /><span>Workout</span>
+              <Play size={18} strokeWidth={2.5} aria-hidden="true" /><span>Workout</span>
             </button>
           )}
           <button type="button" className={`tab ${shown.name === 'home' ? 'on' : ''}`} onClick={() => shown.name !== 'home' && go({ name: 'home' }, true)} aria-current={shown.name === 'home' ? 'page' : undefined}>
-            <Px name="home" /><span>Home</span>
+            <House size={18} strokeWidth={2.5} aria-hidden="true" /><span>Home</span>
+          </button>
+          <button type="button" className={`tab ${shown.name === 'stats' ? 'on' : ''}`} onClick={() => shown.name !== 'stats' && go({ name: 'stats' }, true)} aria-current={shown.name === 'stats' ? 'page' : undefined}>
+            <ChartColumn size={20} strokeWidth={2.5} aria-hidden="true" /><span>Stats</span>
           </button>
           <button type="button" className={`tab ${shown.name === 'history' ? 'on' : ''}`} onClick={() => shown.name !== 'history' && go({ name: 'history' }, true)} aria-current={shown.name === 'history' ? 'page' : undefined}>
-            <Px name="clock" /><span>History</span>
+            <HistoryIcon size={18} strokeWidth={2.5} aria-hidden="true" /><span>History</span>
           </button>
         </nav>
       )}

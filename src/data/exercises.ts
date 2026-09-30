@@ -7,16 +7,16 @@ const W = 'weight', BW = 'bodyweight', WBW = 'weighted', ABW = 'assisted', DUR =
 
 const ROWS: Row[] = [
   // chest
-  ['bench-press', 'Bench Press', W, 'barbell', ['chest'], ['front-delts', 'triceps']],
-  ['incline-bench-press', 'Incline Bench Press', W, 'barbell', ['chest'], ['front-delts', 'triceps']],
+  ['bench-press', 'Bench Press', W, 'barbell', ['chest'], ['chest-upper', 'front-delts', 'triceps']],
+  ['incline-bench-press', 'Incline Bench Press', W, 'barbell', ['chest-upper'], ['chest', 'front-delts', 'triceps']],
   ['decline-bench-press', 'Decline Bench Press', W, 'barbell', ['chest'], ['triceps']],
-  ['db-bench-press', 'Dumbbell Bench Press', W, 'dumbbell', ['chest'], ['front-delts', 'triceps']],
-  ['incline-db-press', 'Incline Dumbbell Press', W, 'dumbbell', ['chest'], ['front-delts', 'triceps']],
-  ['smith-incline-press', 'Smith Incline Press', W, 'smith', ['chest'], ['front-delts', 'triceps']],
+  ['db-bench-press', 'Dumbbell Bench Press', W, 'dumbbell', ['chest'], ['chest-upper', 'front-delts', 'triceps']],
+  ['incline-db-press', 'Incline Dumbbell Press', W, 'dumbbell', ['chest-upper'], ['chest', 'front-delts', 'triceps']],
+  ['smith-incline-press', 'Smith Incline Press', W, 'smith', ['chest-upper'], ['chest', 'front-delts', 'triceps']],
   ['chest-press-machine', 'Chest Press (Machine)', W, 'machine', ['chest'], ['front-delts', 'triceps']],
   ['db-fly', 'Dumbbell Fly', W, 'dumbbell', ['chest'], ['front-delts']],
   ['cable-fly', 'Cable Fly', W, 'cable', ['chest'], ['front-delts']],
-  ['low-to-high-cable-fly', 'Low-to-High Cable Fly', W, 'cable', ['chest'], ['front-delts']],
+  ['low-to-high-cable-fly', 'Low-to-High Cable Fly', W, 'cable', ['chest-upper'], ['chest', 'front-delts']],
   ['pec-deck', 'Pec Deck', W, 'machine', ['chest']],
   ['push-up', 'Push-Up', BW, 'bodyweight', ['chest'], ['front-delts', 'triceps', 'abs']],
   ['weighted-push-up', 'Weighted Push-Up', WBW, 'bodyweight', ['chest'], ['front-delts', 'triceps']],
@@ -81,21 +81,22 @@ const ROWS: Row[] = [
   ['dead-hang', 'Dead Hang', DUR, 'bodyweight', ['forearms'], ['lats']],
 
   // legs
-  ['back-squat', 'Back Squat', W, 'barbell', ['quads'], ['glutes', 'lower-back']],
+  ['back-squat', 'Back Squat', W, 'barbell', ['quads'], ['glutes', 'adductors', 'lower-back']],
   ['front-squat', 'Front Squat', W, 'barbell', ['quads'], ['glutes', 'abs']],
   ['hack-squat', 'Hack Squat', W, 'machine', ['quads'], ['glutes']],
   ['leg-press', 'Leg Press', W, 'machine', ['quads'], ['glutes']],
   ['goblet-squat', 'Goblet Squat', W, 'dumbbell', ['quads'], ['glutes']],
-  ['bulgarian-split-squat', 'Bulgarian Split Squat', W, 'dumbbell', ['quads'], ['glutes']],
+  ['bulgarian-split-squat', 'Bulgarian Split Squat', W, 'dumbbell', ['quads'], ['glutes', 'adductors']],
   ['walking-lunge', 'Walking Lunge', W, 'dumbbell', ['quads'], ['glutes']],
   ['leg-extension', 'Leg Extension', W, 'machine', ['quads']],
   ['romanian-deadlift', 'Romanian Deadlift', W, 'barbell', ['hamstrings'], ['glutes', 'lower-back']],
   ['lying-leg-curl', 'Lying Leg Curl', W, 'machine', ['hamstrings']],
   ['seated-leg-curl', 'Seated Leg Curl', W, 'machine', ['hamstrings']],
+  ['copenhagen-plank', 'Copenhagen Plank', DUR, 'bodyweight', ['adductors'], ['obliques']],
   ['nordic-curl', 'Nordic Curl', BW, 'bodyweight', ['hamstrings']],
   ['hip-thrust', 'Hip Thrust', W, 'barbell', ['glutes'], ['hamstrings']],
   ['abductor-machine', 'Hip Abduction (Machine)', W, 'machine', ['glutes']],
-  ['adductor-machine', 'Hip Adduction (Machine)', W, 'machine', ['quads']],
+  ['adductor-machine', 'Hip Adduction (Machine)', W, 'machine', ['adductors']],
   ['standing-calf-raise', 'Standing Calf Raise', W, 'machine', ['calves']],
   ['seated-calf-raise', 'Seated Calf Raise', W, 'machine', ['calves']],
 
@@ -115,11 +116,12 @@ export const LIBRARY: Exercise[] = ROWS.map(([id, name, type, equipment, primary
 }))
 
 export const MUSCLES: Muscle[] = [
-  'chest', 'front-delts', 'side-delts', 'rear-delts', 'traps', 'upper-back', 'lats', 'lower-back',
-  'biceps', 'triceps', 'forearms', 'abs', 'obliques', 'quads', 'hamstrings', 'glutes', 'calves',
+  'chest-upper', 'chest', 'front-delts', 'side-delts', 'rear-delts', 'traps', 'upper-back', 'lats', 'lower-back',
+  'biceps', 'triceps', 'forearms', 'abs', 'obliques', 'quads', 'adductors', 'hamstrings', 'glutes', 'calves',
 ]
 
 export const MUSCLE_LABEL: Record<Muscle, string> = {
+  'chest-upper': 'Upper chest',
   chest: 'Chest',
   'front-delts': 'Front delts',
   'side-delts': 'Side delts',
@@ -134,6 +136,7 @@ export const MUSCLE_LABEL: Record<Muscle, string> = {
   abs: 'Abs',
   obliques: 'Obliques',
   quads: 'Quads',
+  adductors: 'Inner thigh',
   hamstrings: 'Hamstrings',
   glutes: 'Glutes',
   calves: 'Calves',
@@ -145,4 +148,16 @@ export const TYPE_LABEL: Record<ExType, string> = {
   weighted: 'Weighted bodyweight',
   assisted: 'Assisted bodyweight',
   duration: 'Duration',
+}
+
+/** Six broad groups for the muscle-distribution (spider) chart. */
+export type Group = 'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Core'
+export const GROUPS: Group[] = ['Chest', 'Shoulders', 'Arms', 'Core', 'Legs', 'Back']
+export const GROUP_OF: Record<Muscle, Group> = {
+  'chest-upper': 'Chest', chest: 'Chest',
+  'front-delts': 'Shoulders', 'side-delts': 'Shoulders', 'rear-delts': 'Shoulders',
+  traps: 'Back', 'upper-back': 'Back', lats: 'Back', 'lower-back': 'Back',
+  biceps: 'Arms', triceps: 'Arms', forearms: 'Arms',
+  abs: 'Core', obliques: 'Core',
+  quads: 'Legs', adductors: 'Legs', hamstrings: 'Legs', glutes: 'Legs', calves: 'Legs',
 }

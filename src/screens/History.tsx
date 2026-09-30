@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { exerciseById, exportData, importData, useStore } from '../lib/store'
 import { dateLabel, fmtDuration, prsIn, setCount, workoutVolume } from '../lib/stats'
-import { Px } from '../components/Pixel'
+import { Dumbbell, History as HistoryIcon, Trophy } from 'lucide-react'
 
 export function History({ onOpenSession }: { onOpenSession: (id: string) => void }) {
   const s = useStore()
@@ -27,12 +27,12 @@ export function History({ onOpenSession }: { onOpenSession: (id: string) => void
           <button key={w.id} type="button" className="card session" onClick={() => onOpenSession(w.id)}>
             <div className="session-top">
               <b>{w.name}</b>
-              {prs > 0 && <span className="pr-badge"><Px name="trophy" /> {prs}</span>}
+              {prs > 0 && <span className="pr-badge"><Trophy size={18} strokeWidth={2.5} aria-hidden="true" /> {prs}</span>}
             </div>
             <small>{dateLabel(w.finishedAt)}</small>
             <div className="stats-row">
-              <span><Px name="clock" /> {fmtDuration(new Date(w.finishedAt).getTime() - new Date(w.startedAt).getTime())}</span>
-              <span><Px name="dumbbell" u={1.5} /> {workoutVolume(w, s).toLocaleString('en-IN')} kg</span>
+              <span><HistoryIcon size={18} strokeWidth={2.5} aria-hidden="true" /> {fmtDuration(new Date(w.finishedAt).getTime() - new Date(w.startedAt).getTime())}</span>
+              <span><Dumbbell size={15} strokeWidth={2.5} aria-hidden="true" /> {workoutVolume(w, s).toLocaleString('en-IN')} kg</span>
               <span>{setCount(w)} sets</span>
             </div>
             <ul className="session-lines">
