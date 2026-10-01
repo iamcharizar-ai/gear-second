@@ -17,7 +17,7 @@ Built as a lean, one-person replacement for the core loop of big workout apps: *
 - **Exercise pages**: charts for heaviest weight, one rep max, best set volume, session volume and total reps; personal records; a set-records table (best weight per rep count); full history.
 - **Workout detail**: muscles worked (heatmap + bars), records broken, every set.
 - Exercise types: weight × reps, bodyweight reps, weighted bodyweight (log the added kg), assisted bodyweight, and timed holds. Custom exercises supported.
-- Installable PWA, works offline. Data is local to the device for now: use **History → Backup → Export** now and then.
+- Installable PWA, works offline. Changes queue and sync when you are back online; **History → Backup → Export** gives an offline copy.
 
 ## Run it
 
@@ -28,7 +28,7 @@ Built as a lean, one-person replacement for the core loop of big workout apps: *
 
 ## Code map
 
-- `src/lib/store.ts` — routines, history, the live workout; localStorage persistence
+- `src/lib/store.ts` — routines, history, the live workout; localStorage persistence and ledger sync
 - `src/lib/stats.ts` — previous sets, progression targets, records
 - `src/lib/supersets.ts` — superset grouping and list moves (shared by workout + routine editor)
 - `src/lib/insights.ts` — periods, muscle/group distributions, weekly series, streaks, exercise metrics, set records
@@ -39,7 +39,18 @@ Built as a lean, one-person replacement for the core loop of big workout apps: *
 - `src/data/templates.ts` — seeded routines
 - `src/screens/` — Home, Stats, Workout, Session (finish summary), History, ExerciseDetail, RoutineEditor
 
-## Next
+## The routine
 
-- Sync through the shared Supabase ledger with LifeOS (Gym habit + XP), so phone and desktop share one history.
-- Arbor skill add-ons appended to the gym session.
+The seeded weekly split (seven short sessions, specialised for side delts, upper chest, lats and mid/upper back) is explained exercise by exercise in [ROUTINE.md](ROUTINE.md). Home shows today's session; edit any routine freely, your edits are never overwritten by a later seed.
+
+## Linked apps
+
+Strong shares one append-only event ledger (a Supabase table) with **Life OS** (habits) and **Arbor** (calisthenics skill tree):
+
+- Finishing a workout writes a `workout` event. Life OS ticks its Gym habit from it (and locks Gym from being ticked by hand).
+- Workouts and routines sync between your devices through the same ledger.
+- The Arbor coach picks one or two calisthenics skills that need the gym each day; they appear as **Skill work** at the top of the workout, and ticking them logs the practice for Arbor.
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (in `.env.local` and in the host's environment) to turn the link on. Without them the app is fully local.
+
+`src/arbor-core/` is copied from the Arbor repo (`npm run core` there). Do not edit it here.

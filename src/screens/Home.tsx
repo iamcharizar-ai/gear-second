@@ -1,5 +1,6 @@
-import { ChevronRight, Dumbbell, Pencil, Play, Plus } from 'lucide-react'
-import { exerciseById, startWorkout, useStore } from '../lib/store'
+import { Check, ChevronRight, Dumbbell, Pencil, Play, Plus } from 'lucide-react'
+import { exerciseById, gymSkillsToday, startWorkout, todaysRoutine, useStore, useSync } from '../lib/store'
+import { dayISO } from '../arbor-core/model.ts'
 import { fmtDuration, weekStart } from '../lib/stats'
 import { muscleSetsIn } from '../lib/insights'
 import { confirmDialog } from '../lib/confirm'
@@ -17,6 +18,13 @@ export function Home({
   const s = useStore()
   const week = muscleSetsIn(s, [weekStart().toISOString(), new Date(Date.now() + 60_000).toISOString()])
   const last = s.workouts[0]
+  const sync = useSync()
+  const today = todaysRoutine(s)
+  const doneToday = s.workouts.some((w) => dayISO(new Date(w.finishedAt)) === dayISO())
+  const skills = gymSkillsToday(s)
+  // weekly split in calendar order starting Monday, then everything else
+  const order = (r: { day?: number }) => (r.day == null ? 99 : (r.day + 6) % 7)
+  const routines = s.routines.slice().sort((a, b) => order(a) - order(b))
 
   const start = async (routineId: string | null) => {
     if (s.active && !(await confirmDialog(`"${s.active.name}" is still running. Discard it and start a new one?`, 'Start new', true))) return
@@ -42,6 +50,17 @@ export function Home({
         </button>
       )}
 
+      {today && !s.active && (
+        <section className={`card today ${doneToday ? 'done' : ''}`}>
+          <small className="eyebrow">{doneToday ? 'Done today' : 'Today'}</small>
+          <h3>{today.name}</h3>
+          <p>{today.items.length} exercises · {today.items.reduce((n, it) => n + it.sets, 0)} sets{skills.length ? ` · + ${skills.map((k) => k.name).join(', ')}` : ''}</p>
+          {doneToday
+            ? <span className="today-done"><Check size={18} strokeWidth={3} aria-hidden="true" /> Logged. Gym is ticked in Life OS.</span>
+            : <button type="button" className="btn primary wide" onClick={() => start(today.id)}><Play size={18} strokeWidth={2.75} fill="currentColor" aria-hidden="true" /> Start today's workout</button>}
+        </section>
+      )}
+
       <button type="button" className="btn wide" onClick={() => start(null)}>
         <Plus size={18} strokeWidth={2.75} aria-hidden="true" /> Start empty workout
       </button>
@@ -52,7 +71,7 @@ export function Home({
           <button type="button" className="btn sm" onClick={() => onEditRoutine(null)}><Plus size={16} strokeWidth={2.75} aria-hidden="true" /> New</button>
         </div>
         {s.routines.length === 0 && <p className="card empty">No routines yet.</p>}
-        {s.routines.map((r) => (
+        {routines.map((r) => (
           <div key={r.id} className="card routine">
             <div className="routine-main">
               <h3>{r.name}</h3>
@@ -73,6 +92,13 @@ export function Home({
         </div>
         <MuscleOverview sets={week} weeks={1} />
       </section>
+
+      {sync.status !== 'off' && (
+        <p className={`sync ${sync.status}`}>
+          {sync.status === 'live' ? 'Synced with Life OS and Arbor' : sync.status === 'connecting' ? 'Connecting...' : 'Offline: changes are queued'}
+          {sync.pending > 0 ? ` · ${sync.pending} waiting` : ''}
+        </p>
+      )}
 
       {last && (
         <button type="button" className="card row-card" onClick={() => onOpenSession(last.id)}>

@@ -46,7 +46,7 @@ export function History({ onOpenSession }: { onOpenSession: (id: string) => void
 
       <section className="backup">
         <h2>Backup</h2>
-        <p className="muted">Workouts are saved on this device only for now. Export a copy now and then.</p>
+        <p className="muted">Workouts sync through the shared ledger. An export is still a good offline copy.</p>
         <div className="row">
           <button type="button" className="btn sm" onClick={download} disabled={!s.workouts.length && !s.custom.length}>Export</button>
           <button type="button" className="btn sm" onClick={() => file.current?.click()}>Import</button>

@@ -6,6 +6,7 @@ import { linkNext, move, normalize, remove, supersetLabels, unlink } from '../li
 import type { DoneSet, Exercise, LiveExercise, LiveSet } from '../lib/types'
 import { confirmDialog } from '../lib/confirm'
 import { ExercisePicker } from '../components/ExercisePicker'
+import { SkillWork } from '../components/SkillWork'
 import { ArrowDown, ArrowLeftRight, ArrowUp, Check, ChevronLeft, Ellipsis, Link2, Minus, Plus, StickyNote, Trash2 } from 'lucide-react'
 
 // ── mutations on the live workout ───────────────────────────────────────────
@@ -122,6 +123,8 @@ export function WorkoutScreen({
         value={w.note}
         onChange={(e) => updateActive((x) => ({ ...x, note: e.target.value }))}
       />
+
+      <SkillWork />
 
       {w.exercises.map((e, idx) => (
         <ExerciseCard
@@ -250,7 +253,7 @@ const ExerciseCard = memo(function ExerciseCard({
       {noteOpen && (
         <textarea
           className="note"
-          rows={1}
+          rows={Math.min(5, Math.max(1, Math.ceil(ex.note.length / 34)))}
           placeholder="Note for this exercise"
           value={ex.note}
           onChange={(e) => patchEx(ex.uid, (x) => ({ ...x, note: e.target.value }))}

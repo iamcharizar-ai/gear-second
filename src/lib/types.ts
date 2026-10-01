@@ -59,6 +59,8 @@ export interface RoutineItem {
 export interface Routine {
   id: string
   name: string
+  /** weekday this routine is scheduled on (0 = Sunday), if it is part of the weekly split */
+  day?: number
   items: RoutineItem[]
   updatedAt: string
 }
