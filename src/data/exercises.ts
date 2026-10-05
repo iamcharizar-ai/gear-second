@@ -152,15 +152,3 @@ export const TYPE_LABEL: Record<ExType, string> = {
   assisted: 'Assisted bodyweight',
   duration: 'Duration',
 }
-
-/** Six broad groups for the muscle-distribution (spider) chart. */
-export type Group = 'Chest' | 'Back' | 'Shoulders' | 'Arms' | 'Legs' | 'Core'
-export const GROUPS: Group[] = ['Chest', 'Shoulders', 'Arms', 'Core', 'Legs', 'Back']
-export const GROUP_OF: Record<Muscle, Group> = {
-  'chest-upper': 'Chest', chest: 'Chest',
-  'front-delts': 'Shoulders', 'side-delts': 'Shoulders', 'rear-delts': 'Shoulders',
-  traps: 'Back', 'upper-back': 'Back', lats: 'Back', 'lower-back': 'Back',
-  biceps: 'Arms', triceps: 'Arms', forearms: 'Arms',
-  abs: 'Core', obliques: 'Core',
-  quads: 'Legs', adductors: 'Legs', hamstrings: 'Legs', glutes: 'Legs', calves: 'Legs',
-}

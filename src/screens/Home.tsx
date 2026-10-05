@@ -5,6 +5,7 @@ import { fmtDuration, weekStart } from '../lib/stats'
 import { muscleSetsIn } from '../lib/insights'
 import { confirmDialog } from '../lib/confirm'
 import { MuscleOverview } from '../components/MuscleOverview'
+import { VITALS_URL } from '../lib/links'
 
 export function Home({
   onOpenWorkout,
@@ -91,6 +92,7 @@ export function Home({
           <span className="muted">since Monday · tap a muscle</span>
         </div>
         <MuscleOverview sets={week} weeks={1} />
+        <a className="link" href={VITALS_URL} target="_blank" rel="noreferrer">Trends, charts and records are in Vitals</a>
       </section>
 
       {sync.status !== 'off' && (

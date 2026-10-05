@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useStore } from './lib/store'
 import { ConfirmHost } from './components/Confirm'
-import { ChartColumn, History as HistoryIcon, House, Play } from 'lucide-react'
+import { History as HistoryIcon, House, Play } from 'lucide-react'
 import { Home } from './screens/Home'
 import { History } from './screens/History'
-import { Stats } from './screens/Stats'
 import { WorkoutScreen } from './screens/Workout'
 import { Session } from './screens/Session'
 import { ExerciseDetail } from './screens/ExerciseDetail'
@@ -13,7 +12,6 @@ import { RoutineEditor } from './screens/RoutineEditor'
 type View =
   | { name: 'home' }
   | { name: 'history' }
-  | { name: 'stats' }
   | { name: 'workout' }
   | { name: 'session'; id: string; celebrate?: boolean }
   | { name: 'exercise'; id: string }
@@ -32,6 +30,8 @@ export default function App() {
   const [view, setView] = useState<View>(() => {
     // A reload keeps history.state; the "workout complete" moment should only show once.
     const v = (history.state?.view as View) ?? { name: 'home' }
+    // the Stats screen moved to Vitals: an old history entry for it lands on Home
+    if ((v.name as string) === 'stats') return { name: 'home' }
     return v.name === 'session' && v.celebrate ? { name: 'home' } : v
   })
   const scrolls = useRef(new Map<string, number>())
@@ -46,7 +46,8 @@ export default function App() {
   useEffect(() => {
     const onPop = (e: PopStateEvent) => {
       scrolls.current.set(keyOf(view), window.scrollY)
-      const next = (e.state?.view as View) ?? { name: 'home' }
+      let next = (e.state?.view as View) ?? { name: 'home' }
+      if ((next.name as string) === 'stats') next = { name: 'home' }
       restore.current = scrolls.current.get(keyOf(next)) ?? 0
       setView(next)
     }
@@ -80,13 +81,12 @@ export default function App() {
   const openSession = (id: string) => go({ name: 'session', id })
   const editRoutine = (id: string | null) => go({ name: 'routine', id })
 
-  const tabs = shown.name === 'home' || shown.name === 'history' || shown.name === 'stats'
+  const tabs = shown.name === 'home' || shown.name === 'history'
 
   return (
     <div className={`app ${tabs ? 'has-tabs' : ''}`}>
       {shown.name === 'home' && <Home onOpenWorkout={() => go({ name: 'workout' })} onEditRoutine={editRoutine} onOpenSession={openSession} />}
       {shown.name === 'history' && <History onOpenSession={openSession} />}
-      {shown.name === 'stats' && <Stats onOpenSession={openSession} onOpenExercise={openExercise} />}
       {shown.name === 'workout' && (
         <WorkoutScreen
           onMinimize={back}
@@ -116,9 +116,6 @@ export default function App() {
           )}
           <button type="button" className={`tab ${shown.name === 'home' ? 'on' : ''}`} onClick={() => shown.name !== 'home' && go({ name: 'home' }, true)} aria-current={shown.name === 'home' ? 'page' : undefined}>
             <House size={18} strokeWidth={2.5} aria-hidden="true" /><span>Home</span>
-          </button>
-          <button type="button" className={`tab ${shown.name === 'stats' ? 'on' : ''}`} onClick={() => shown.name !== 'stats' && go({ name: 'stats' }, true)} aria-current={shown.name === 'stats' ? 'page' : undefined}>
-            <ChartColumn size={20} strokeWidth={2.5} aria-hidden="true" /><span>Stats</span>
           </button>
           <button type="button" className={`tab ${shown.name === 'history' ? 'on' : ''}`} onClick={() => shown.name !== 'history' && go({ name: 'history' }, true)} aria-current={shown.name === 'history' ? 'page' : undefined}>
             <HistoryIcon size={18} strokeWidth={2.5} aria-hidden="true" /><span>History</span>

@@ -4,11 +4,9 @@ import { supersetLabels } from '../lib/supersets'
 import type { Routine, Workout } from '../lib/types'
 import { confirmDialog } from '../lib/confirm'
 import { ChevronLeft, Trash2, Trophy } from 'lucide-react'
-import { MUSCLES, MUSCLE_LABEL } from '../data/exercises'
 import { muscleSetsOf } from '../lib/insights'
 import { heat } from '../lib/theme'
 import { BodyMap } from '../components/BodyMap'
-import { MuscleBars } from '../components/Charts'
 
 
 /** Turn a finished workout into a routine, keeping rep ranges from its source routine when known. */
@@ -99,10 +97,6 @@ export function Session({
       <section className="card">
         <div className="section-head"><h2>Muscles worked</h2><span className="muted">sets</span></div>
         <BodyMap color={(m) => heat(split[m] ?? 0, [2, 4, 6, 8])} height={300} label="Muscles worked in this workout" />
-        <MuscleBars
-          rows={MUSCLES.filter((m) => split[m]).map((m) => ({ key: m, label: MUSCLE_LABEL[m], value: split[m] ?? 0 }))}
-          unit="sets"
-        />
       </section>
 
       {prs.length > 0 && (

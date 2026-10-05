@@ -154,10 +154,24 @@ function lifeOsSummary(w: Workout) {
   }
 }
 
+/**
+ * The exercises a workout used, as Vitals needs them for its training charts:
+ * name, how sets are logged and which muscles they work. Sent with every
+ * workout because custom exercises exist only on the device that made them.
+ */
+function libraryOf(w: Workout) {
+  return Object.fromEntries(
+    [...new Set(w.exercises.map((e) => e.exerciseId))].map((id) => {
+      const ex = exerciseById(id)
+      return [id, { name: ex.name, type: ex.type, primary: ex.primary, secondary: ex.secondary }]
+    }),
+  )
+}
+
 function publishWorkout(w: Workout) {
   ledger.emit(
     'workout',
-    { type: w.name, at: w.finishedAt, session: JSON.stringify(lifeOsSummary(w)), gear: JSON.stringify(w) },
+    { type: w.name, at: w.finishedAt, session: JSON.stringify(lifeOsSummary(w)), gear: JSON.stringify(w), lib: JSON.stringify(libraryOf(w)) },
     dayISO(new Date(w.finishedAt)),
   )
   write(K.published, [...new Set([...read<string[]>(K.published, []), w.id])])
