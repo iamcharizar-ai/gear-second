@@ -371,21 +371,56 @@ export function exportData(): string {
   return JSON.stringify({ app: 'gear-second', version: 1, exportedAt: new Date().toISOString(), routines, workouts, custom }, null, 1)
 }
 
+// A backup is a file anyone can edit, and the stats, the Life OS summary and the ledger all trust
+// what is stored. So every record is checked for the fields those read before anything is saved
+// or published; records that fail are skipped, never half-applied.
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
+const isStr = (v: unknown): v is string => typeof v === 'string'
+const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
+const isTime = (v: unknown): v is string => isStr(v) && Number.isFinite(new Date(v).getTime())
+const strs = (v: unknown): v is string[] => Array.isArray(v) && v.every(isStr)
+const EX_TYPES: readonly string[] = ['weight', 'bodyweight', 'weighted', 'assisted', 'duration']
+const EX_EQUIPMENT: readonly string[] = ['barbell', 'dumbbell', 'cable', 'machine', 'bodyweight', 'smith', 'ez-bar', 'other']
+
+const validWorkout = (w: unknown): w is Workout =>
+  isObj(w) && isStr(w.id) && w.id !== '' && isStr(w.name) && isStr(w.note) && isTime(w.startedAt) && isTime(w.finishedAt) &&
+  (w.routineId == null || isStr(w.routineId)) &&
+  Array.isArray(w.exercises) &&
+  w.exercises.every(
+    (e) => isObj(e) && isStr(e.exerciseId) && Array.isArray(e.sets) && e.sets.every((x) => isObj(x) && (x.kg === null || isNum(x.kg)) && isNum(x.reps)),
+  )
+
+const validRoutine = (r: unknown): r is Routine =>
+  isObj(r) && isStr(r.id) && r.id !== '' && isStr(r.name) && isTime(r.updatedAt) && Array.isArray(r.items) &&
+  r.items.every((i) => isObj(i) && isStr(i.exerciseId) && isNum(i.sets) && isNum(i.repMin) && isNum(i.repMax))
+
+const validExercise = (c: unknown): c is Exercise =>
+  isObj(c) && isStr(c.id) && c.id !== '' && isStr(c.name) && isStr(c.type) && EX_TYPES.includes(c.type) && isStr(c.equipment) && EX_EQUIPMENT.includes(c.equipment) && strs(c.primary) && strs(c.secondary)
+
+/** Returns a message to show, or null for a clean import. */
 export function importData(text: string): string | null {
   try {
     const d = JSON.parse(text)
     if (d?.app !== 'gear-second' || !Array.isArray(d.workouts) || !Array.isArray(d.routines)) return 'Not a Gear Second backup file.'
-    const seen = new Set(state.workouts.map((w) => w.id))
-    const fresh = (d.workouts as Workout[]).filter((w) => !seen.has(w.id))
-    const rSeen = new Set(state.routines.map((r) => r.id))
-    const cSeen = new Set(state.custom.map((c) => c.id))
+    const rawCustom: unknown[] = Array.isArray(d.custom) ? d.custom : []
+    const workouts: Workout[] = d.workouts.filter(validWorkout)
+    const routines: Routine[] = d.routines.filter(validRoutine)
+    const custom: Exercise[] = rawCustom.filter(validExercise)
+    const skipped = d.workouts.length - workouts.length + (d.routines.length - routines.length) + (rawCustom.length - custom.length)
+
+    // an id already stored, or repeated within the file, is kept once
+    const firstSeen = <T extends { id: string }>(items: T[], have: Iterable<string>): T[] => {
+      const taken = new Set(have)
+      return items.filter((x) => (taken.has(x.id) ? false : (taken.add(x.id), true)))
+    }
+    const fresh = firstSeen(workouts, state.workouts.map((w) => w.id))
     set({
       workouts: sortNewest([...state.workouts, ...fresh]),
-      routines: [...state.routines, ...(d.routines as Routine[]).filter((r) => !rSeen.has(r.id))],
-      custom: [...state.custom, ...((d.custom ?? []) as Exercise[]).filter((c) => !cSeen.has(c.id))],
+      routines: [...state.routines, ...firstSeen(routines, state.routines.map((r) => r.id))],
+      custom: [...state.custom, ...firstSeen(custom, state.custom.map((c) => c.id))],
     })
     for (const w of fresh) publishWorkout(w)
-    return null
+    return skipped ? `Backup imported. Skipped ${skipped} record${skipped === 1 ? '' : 's'} that could not be read.` : null
   } catch {
     return 'Could not read that file.'
   }

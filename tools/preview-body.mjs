@@ -1,4 +1,6 @@
 // Dev aid: render the anatomy figure to a PNG.  node tools/preview-body.mjs out.png
+// Needs a Node that strips TypeScript types (it imports ../src/lib/anatomy.ts directly; Node 22.18+ / 23.6+)
+// and a Chromium-based browser: set BROWSER_PATH, or it falls back to Edge's default Windows location.
 import puppeteer from 'puppeteer-core'
 import { FRONT, BACK, OUTLINE, HEAD, smooth, mirrorPts, linePath, VIEW_W, VIEW_H } from '../src/lib/anatomy.ts'
 
@@ -13,9 +15,13 @@ const fig = (regions, ox) => `<g transform="translate(${ox},0)">${base}</g>` + r
   return `<g transform="translate(${ox},0)">${shapes}${lines}</g>`
 }).join('')
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VIEW_W * 2 + 20} ${VIEW_H}" width="${(VIEW_W * 2 + 20) * 1.6}" height="${VIEW_H * 1.6}">${fig(FRONT, 0)}${fig(BACK, VIEW_W + 20)}</svg>`
-const b = await puppeteer.launch({ executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', headless: 'new' })
-const p = await b.newPage()
-await p.setViewport({ width: Math.ceil((VIEW_W * 2 + 20) * 1.6) + 20, height: Math.ceil(VIEW_H * 1.6) + 20 })
-await p.setContent(`<body style="margin:10px;background:#f6f2ea">${svg}</body>`)
-await p.screenshot({ path: process.argv[2] || 'body.png' })
-await b.close()
+const executablePath = process.env.BROWSER_PATH ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
+const b = await puppeteer.launch({ executablePath, headless: 'new' })
+try {
+  const p = await b.newPage()
+  await p.setViewport({ width: Math.ceil((VIEW_W * 2 + 20) * 1.6) + 20, height: Math.ceil(VIEW_H * 1.6) + 20 })
+  await p.setContent(`<body style="margin:10px;background:#f6f2ea">${svg}</body>`)
+  await p.screenshot({ path: process.argv[2] || 'body.png' })
+} finally {
+  await b.close() // never leave the browser process running if a step above throws
+}

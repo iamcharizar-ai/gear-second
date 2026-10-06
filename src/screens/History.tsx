@@ -14,7 +14,8 @@ export function History({ onOpenSession }: { onOpenSession: (id: string) => void
     a.href = URL.createObjectURL(blob)
     a.download = `gear-second-backup-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
-    URL.revokeObjectURL(a.href)
+    // not in the same task: some browsers start the download asynchronously and would find the URL gone
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   }
 
   return (
