@@ -380,9 +380,10 @@ const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFin
 const isTime = (v: unknown): v is string => isStr(v) && Number.isFinite(new Date(v).getTime())
 const strs = (v: unknown): v is string[] => Array.isArray(v) && v.every(isStr)
 const EX_TYPES: readonly string[] = ['weight', 'bodyweight', 'weighted', 'assisted', 'duration']
+const EX_EQUIPMENT: readonly string[] = ['barbell', 'dumbbell', 'cable', 'machine', 'bodyweight', 'smith', 'ez-bar', 'other']
 
 const validWorkout = (w: unknown): w is Workout =>
-  isObj(w) && isStr(w.id) && w.id !== '' && isStr(w.name) && isTime(w.startedAt) && isTime(w.finishedAt) &&
+  isObj(w) && isStr(w.id) && w.id !== '' && isStr(w.name) && isStr(w.note) && isTime(w.startedAt) && isTime(w.finishedAt) &&
   (w.routineId == null || isStr(w.routineId)) &&
   Array.isArray(w.exercises) &&
   w.exercises.every(
@@ -390,11 +391,11 @@ const validWorkout = (w: unknown): w is Workout =>
   )
 
 const validRoutine = (r: unknown): r is Routine =>
-  isObj(r) && isStr(r.id) && r.id !== '' && isStr(r.name) && Array.isArray(r.items) &&
+  isObj(r) && isStr(r.id) && r.id !== '' && isStr(r.name) && isTime(r.updatedAt) && Array.isArray(r.items) &&
   r.items.every((i) => isObj(i) && isStr(i.exerciseId) && isNum(i.sets) && isNum(i.repMin) && isNum(i.repMax))
 
 const validExercise = (c: unknown): c is Exercise =>
-  isObj(c) && isStr(c.id) && c.id !== '' && isStr(c.name) && isStr(c.type) && EX_TYPES.includes(c.type) && strs(c.primary) && strs(c.secondary)
+  isObj(c) && isStr(c.id) && c.id !== '' && isStr(c.name) && isStr(c.type) && EX_TYPES.includes(c.type) && isStr(c.equipment) && EX_EQUIPMENT.includes(c.equipment) && strs(c.primary) && strs(c.secondary)
 
 /** Returns a message to show, or null for a clean import. */
 export function importData(text: string): string | null {
@@ -407,14 +408,16 @@ export function importData(text: string): string | null {
     const custom: Exercise[] = rawCustom.filter(validExercise)
     const skipped = d.workouts.length - workouts.length + (d.routines.length - routines.length) + (rawCustom.length - custom.length)
 
-    const seen = new Set(state.workouts.map((w) => w.id))
-    const fresh = workouts.filter((w) => !seen.has(w.id))
-    const rSeen = new Set(state.routines.map((r) => r.id))
-    const cSeen = new Set(state.custom.map((c) => c.id))
+    // an id already stored, or repeated within the file, is kept once
+    const firstSeen = <T extends { id: string }>(items: T[], have: Iterable<string>): T[] => {
+      const taken = new Set(have)
+      return items.filter((x) => (taken.has(x.id) ? false : (taken.add(x.id), true)))
+    }
+    const fresh = firstSeen(workouts, state.workouts.map((w) => w.id))
     set({
       workouts: sortNewest([...state.workouts, ...fresh]),
-      routines: [...state.routines, ...routines.filter((r) => !rSeen.has(r.id))],
-      custom: [...state.custom, ...custom.filter((c) => !cSeen.has(c.id))],
+      routines: [...state.routines, ...firstSeen(routines, state.routines.map((r) => r.id))],
+      custom: [...state.custom, ...firstSeen(custom, state.custom.map((c) => c.id))],
     })
     for (const w of fresh) publishWorkout(w)
     return skipped ? `Backup imported. Skipped ${skipped} record${skipped === 1 ? '' : 's'} that could not be read.` : null
