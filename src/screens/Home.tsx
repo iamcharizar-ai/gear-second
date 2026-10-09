@@ -5,6 +5,8 @@ import { fmtDuration, weekStart } from '../lib/stats'
 import { muscleSetsIn } from '../lib/insights'
 import { confirmDialog } from '../lib/confirm'
 import { MuscleOverview } from '../components/MuscleOverview'
+import { RewardIcon } from '../components/RewardIcon'
+import { cleanName, REWARDS } from '../data/rewards'
 import { VITALS_URL } from '../lib/links'
 
 export function Home({
@@ -54,7 +56,13 @@ export function Home({
       {today && !s.active && (
         <section className={`card today ${doneToday ? 'done' : ''}`}>
           <small className="eyebrow">{doneToday ? 'Done today · next up' : 'Next up'}</small>
-          <h3>{today.name}</h3>
+          <div className="today-head">
+            <RewardIcon routineId={today.id} size={48} />
+            <div>
+              <h3>{cleanName(today.name)}</h3>
+              {REWARDS[today.id] && <small className="muted">Earns {REWARDS[today.id].name}</small>}
+            </div>
+          </div>
           <p>{today.items.length} exercises · {today.items.reduce((n, it) => n + it.sets, 0)} sets{skills.length ? ` · + ${skills.map((k) => k.name).join(', ')}` : ''}</p>
           {doneToday
             ? <span className="today-done"><Check size={18} strokeWidth={3} aria-hidden="true" /> Logged. Gym is ticked in Life OS.</span>
@@ -74,8 +82,9 @@ export function Home({
         {s.routines.length === 0 && <p className="card empty">No routines yet.</p>}
         {routines.map((r) => (
           <div key={r.id} className="card routine">
+            <RewardIcon routineId={r.id} size={40} />
             <div className="routine-main">
-              <h3>{r.name}</h3>
+              <h3>{cleanName(r.name)}</h3>
               <p>{r.items.map((it) => exerciseById(it.exerciseId, s).name).join(' · ') || 'No exercises'}</p>
             </div>
             <div className="routine-actions">

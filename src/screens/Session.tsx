@@ -6,6 +6,8 @@ import { confirmDialog } from '../lib/confirm'
 import { ChevronLeft, Trash2, Trophy } from 'lucide-react'
 import { muscleSetsOf } from '../lib/insights'
 import { heat } from '../lib/theme'
+import { cleanName, REWARDS } from '../data/rewards'
+import { RewardIcon } from '../components/RewardIcon'
 import { BodyMap } from '../components/BodyMap'
 
 
@@ -79,12 +81,13 @@ export function Session({
         <div className="celebrate">
           <span className="celebrate-badge" aria-hidden="true"><Trophy size={34} strokeWidth={2.5} /></span>
           <h2>Workout complete</h2>
+          {w.routineId && REWARDS[w.routineId] && <p className="reward-line"><RewardIcon routineId={w.routineId} size={36} /> {REWARDS[w.routineId].name} earned</p>}
           {prs.length > 0 && <p className="gold">{prs.length} new record{prs.length > 1 ? 's' : ''}</p>}
         </div>
       )}
 
       <div className="card">
-        <h2 className="session-title">{w.name}</h2>
+        <h2 className="session-title">{cleanName(w.name)}</h2>
         <small className="muted">{dateLabel(w.finishedAt)}</small>
         <div className="stat-grid">
           <div><small>Duration</small><b>{fmtDuration(new Date(w.finishedAt).getTime() - new Date(w.startedAt).getTime())}</b></div>

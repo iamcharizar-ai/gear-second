@@ -10,6 +10,7 @@ import { RETIRED_SEEDS, SEED_ROUTINES, SEED_VERSION } from '../data/templates'
 import { createLedger, type LedgerStatus } from '../arbor-core/ledger.ts'
 import { emptyArbor, foldArbor, dayISO, type ArborState, type LedgerEvent } from '../arbor-core/model.ts'
 import { planFor } from '../arbor-core/coach.ts'
+import { cleanName } from '../data/rewards'
 import { GYM_WEEK } from '../arbor-core/schedule.ts'
 import { SKILLS, SKILL_BY_ID } from '../arbor-core/skills.ts'
 import type { ActiveWorkout, Exercise, LiveExercise, Routine, Workout } from './types'
@@ -290,7 +291,7 @@ export function startWorkout(routineId: string | null) {
   const routine = routineId ? state.routines.find((r) => r.id === routineId) : null
   const active: ActiveWorkout = {
     id: uid(),
-    name: routine?.name ?? 'Workout',
+    name: routine ? cleanName(routine.name) : 'Workout',
     routineId: routine?.id ?? null,
     startedAt: new Date().toISOString(),
     note: '',

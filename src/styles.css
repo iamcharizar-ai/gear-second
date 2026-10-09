@@ -348,3 +348,8 @@ button.card:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(-
 .skill-row input::placeholder { color: #6f6a88; font-weight: 500; }
 .skill-row .tick { background: #0f0d17; border-color: #4b4663; color: #6f6a88; box-shadow: none; }
 .skill-row.done .tick { background: #a6e35a; border-color: #a6e35a; color: #0f1a08; }
+
+/* routine rewards: pixel sprites, kept crisp */
+.reward { image-rendering: pixelated; flex: none; }
+.today-head { display: flex; align-items: center; gap: 12px; }
+.reward-line { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; }

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { cleanName } from '../data/rewards'
 import { exerciseById, exportData, importData, useStore } from '../lib/store'
 import { dateLabel, fmtDuration, prsIn, setCount, workoutVolume } from '../lib/stats'
 import { Dumbbell, History as HistoryIcon, Trophy } from 'lucide-react'
@@ -27,7 +28,7 @@ export function History({ onOpenSession }: { onOpenSession: (id: string) => void
         return (
           <button key={w.id} type="button" className="card session" onClick={() => onOpenSession(w.id)}>
             <div className="session-top">
-              <b>{w.name}</b>
+              <b>{cleanName(w.name)}</b>
               {prs > 0 && <span className="pr-badge"><Trophy size={18} strokeWidth={2.5} aria-hidden="true" /> {prs}</span>}
             </div>
             <small>{dateLabel(w.finishedAt)}</small>
