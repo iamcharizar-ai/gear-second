@@ -10,6 +10,7 @@ import { RETIRED_SEEDS, SEED_ROUTINES, SEED_VERSION } from '../data/templates'
 import { createLedger, type LedgerStatus } from '../arbor-core/ledger.ts'
 import { emptyArbor, foldArbor, dayISO, type ArborState, type LedgerEvent } from '../arbor-core/model.ts'
 import { planFor } from '../arbor-core/coach.ts'
+import { GYM_WEEK } from '../arbor-core/schedule.ts'
 import { SKILLS, SKILL_BY_ID } from '../arbor-core/skills.ts'
 import type { ActiveWorkout, Exercise, LiveExercise, Routine, Workout } from './types'
 
@@ -249,10 +250,27 @@ export function deleteRoutine(id: string) {
   ledger.emit('routine', { id, deleted: true })
 }
 
-/** The routine scheduled for today in the weekly split, if any. */
+/** Weekly-split routines in cycle order (Monday first). */
+export const cycleRoutines = (s: State = state): Routine[] =>
+  s.routines.filter((r) => r.day != null).sort((a, b) => ((a.day as number) + 6) % 7 - ((b.day as number) + 6) % 7)
+
+/**
+ * The next routine in the split. It follows the last workout you finished, not the
+ * calendar, so a missed day never skips a muscle group.
+ */
 export const todaysRoutine = (s: State = state): Routine | undefined => {
-  const dow = new Date().getDay()
-  return s.routines.find((r) => r.day === dow)
+  const cycle = cycleRoutines(s)
+  if (!cycle.length) return undefined
+  const lastIdx = s.workouts.reduce((found, w) => {
+    if (found !== -1) return found
+    return cycle.findIndex((r) => r.id === w.routineId)
+  }, -1)
+  return cycle[(lastIdx + 1) % cycle.length]
+}
+
+const gymDayOf = (s: State) => {
+  const r = todaysRoutine(s)
+  return r ? GYM_WEEK.find((g) => g.routineId === r.id) : undefined
 }
 
 // ── live workout ────────────────────────────────────────────────────────────
@@ -340,13 +358,13 @@ export function deleteWorkout(id: string) {
 /** Skills the coach wants practised in the gym today. Publishes the plan if no device has yet. */
 export function gymSkillsToday(s: State = state) {
   const day = dayISO()
-  const { plan } = planFor(SKILLS, s.arbor, day)
+  const { plan } = planFor(SKILLS, s.arbor, day, gymDayOf(s))
   return plan.gym.map((id) => SKILL_BY_ID.get(id)).filter((x): x is NonNullable<typeof x> => Boolean(x))
 }
 
 export function ensurePlanPublished() {
   const day = dayISO()
-  const { plan, frozen } = planFor(SKILLS, state.arbor, day)
+  const { plan, frozen } = planFor(SKILLS, state.arbor, day, gymDayOf(state))
   if (frozen || sync.status !== 'live') return // wait until we know nobody else already published one
   const ev = ledger.emit('plan', { morning: JSON.stringify(plan.morning), gym: JSON.stringify(plan.gym) }, day)
   set({ arbor: foldArbor(state.arbor, [ev]) })

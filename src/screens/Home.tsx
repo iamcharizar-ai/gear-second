@@ -53,12 +53,12 @@ export function Home({
 
       {today && !s.active && (
         <section className={`card today ${doneToday ? 'done' : ''}`}>
-          <small className="eyebrow">{doneToday ? 'Done today' : 'Today'}</small>
+          <small className="eyebrow">{doneToday ? 'Done today · next up' : 'Next up'}</small>
           <h3>{today.name}</h3>
           <p>{today.items.length} exercises · {today.items.reduce((n, it) => n + it.sets, 0)} sets{skills.length ? ` · + ${skills.map((k) => k.name).join(', ')}` : ''}</p>
           {doneToday
             ? <span className="today-done"><Check size={18} strokeWidth={3} aria-hidden="true" /> Logged. Gym is ticked in Life OS.</span>
-            : <button type="button" className="btn primary wide" onClick={() => start(today.id)}><Play size={18} strokeWidth={2.75} fill="currentColor" aria-hidden="true" /> Start today's workout</button>}
+            : <button type="button" className="btn primary wide" onClick={() => start(today.id)}><Play size={18} strokeWidth={2.75} fill="currentColor" aria-hidden="true" /> Start next workout</button>}
         </section>
       )}
 
