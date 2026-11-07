@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
+    { "source": "/ai/:token", "destination": "https://redesign-life-os-ui.vercel.app/api/ai/:token?sections=workouts,arbor" },
     {
       "source": "/(.*)",
       "destination": "/index.html"
