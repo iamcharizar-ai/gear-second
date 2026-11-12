@@ -239,6 +239,21 @@ const ledger = createLedger({
 })
 ledger.start()
 
+// ── Google Health ───────────────────────────────────────────────────────────
+// Life OS holds the Google sign-in and reads each finished workout from the ledger (api/workout-push there),
+// so all Strong does is nudge it once the workout row has had time to land. The call changes nothing it
+// has already sent, so extra nudges are harmless; a missed one is caught by Life OS's daily run.
+const LIFEOS_URL = ((import.meta.env.VITE_LIFEOS_URL as string | undefined) ?? 'https://redesign-life-os-ui.vercel.app').replace(/\/$/, '')
+const HEALTH_PUSH = !LEDGER_OFF && Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
+let healthTimer: ReturnType<typeof setTimeout> | undefined
+function pingHealth(delayMs: number) {
+  if (!HEALTH_PUSH) return
+  clearTimeout(healthTimer)
+  healthTimer = setTimeout(() => { fetch(`${LIFEOS_URL}/api/workout-push`, { method: 'POST', keepalive: true }).catch(() => {}) }, delayMs)
+}
+pingHealth(8_000) // anything finished while offline or closed
+window.addEventListener('online', () => pingHealth(3_000))
+
 // ── routines ────────────────────────────────────────────────────────────────
 export function saveRoutine(r: Routine) {
   const next = { ...r, updatedAt: new Date().toISOString() }
@@ -340,6 +355,7 @@ export function finishWorkout(): Workout | null {
   }
   set({ workouts: [w, ...state.workouts], active: null })
   publishWorkout(w) // → history on other devices, and the Gym tick in Life OS
+  pingHealth(6_000) // → Google Health, once the row above is in the ledger
   return w
 }
 
