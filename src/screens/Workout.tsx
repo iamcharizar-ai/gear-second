@@ -193,10 +193,24 @@ const ExerciseCard = memo(function ExerciseCard({
 
   const focus = (i: number, field: 'kg' | 'reps') => document.getElementById(`in-${ex.uid}-${i}-${field}`)?.focus()
 
+  // Ghost (placeholder) for a set: the nearest value typed in an earlier set of this exercise
+  // (people usually repeat the same weight/reps), else the plan target from last session.
+  const ghost = (i: number): { kg: string; reps: string } => {
+    const t = plan.targets[Math.min(i, plan.targets.length - 1)]
+    let kg = t.kg, reps = t.reps
+    let gotKg = false, gotReps = false
+    for (let j = i - 1; j >= 0 && !(gotKg && gotReps); j--) {
+      const s = ex.sets[j]
+      if (!gotKg && s.kg !== '') { kg = s.kg; gotKg = true }
+      if (!gotReps && s.reps !== '') { reps = s.reps; gotReps = true }
+    }
+    return { kg, reps }
+  }
+
   const tick = (i: number) => {
     const set = ex.sets[i]
     if (set.done) return setSet(ex.uid, i, { done: false })
-    const t = plan.targets[Math.min(i, plan.targets.length - 1)]
+    const t = ghost(i)
     let kg = set.kg
     if (hasKg && kg === '') kg = isNum(t.kg) ? t.kg : def.type === 'weight' ? '' : '0'
     const reps = set.reps !== '' ? set.reps : isNum(t.reps) ? t.reps : ''
@@ -268,7 +282,7 @@ const ExerciseCard = memo(function ExerciseCard({
           <span>SET</span><span>PREVIOUS</span>{hasKg && <span>{kgHead}</span>}<span>{repHead}</span><span aria-label="Done"><Check size={15} strokeWidth={2.5} aria-hidden="true" /></span>
         </div>
         {ex.sets.map((set, i) => {
-          const t = plan.targets[Math.min(i, plan.targets.length - 1)]
+          const t = ghost(i)
           const p = prev?.[i]
           return (
             <div key={i} id={`set-${ex.uid}-${i}`} className={`set-row ${set.done ? 'done' : ''}`} role="row">
