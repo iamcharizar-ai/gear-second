@@ -50,7 +50,7 @@ Strong shares one append-only event ledger (a Supabase table) with **Life OS** (
 - Finishing a workout writes a `workout` event. Life OS ticks its Gym habit from it (and locks Gym from being ticked by hand).
 - Workouts and routines sync between your devices through the same ledger.
 - The Arbor coach picks one or two calisthenics skills that need the gym each day; they appear as **Skill work** at the top of the workout, and ticking them logs the practice for Arbor.
-- Finished workouts also go to **Google Health** as Strength training sessions (sets in the notes). Strong only nudges Life OS (`/api/workout-push`, override the host with `VITE_LIFEOS_URL`); Life OS holds the Google sign-in, reads the workout from the ledger and sends it once. A daily Life OS run catches any nudge that never arrived. Setup is in Life OS's `server/workout-push.ts`.
+- **Google Health (off):** Strong can send finished workouts to Google Health as Strength training sessions, but it is switched off because the Fitbit Air already logs each workout there. To use it: `VITE_HEALTH_PUSH=1` here, `WORKOUT_PUSH=on` in Life OS, and the daily cron back in its `vercel.json`. How it works: finished workouts go as Strength training sessions (sets in the notes). Strong only nudges Life OS (`/api/workout-push`, override the host with `VITE_LIFEOS_URL`); Life OS holds the Google sign-in, reads the workout from the ledger and sends it once. A daily Life OS run catches any nudge that never arrived. Setup is in Life OS's `server/workout-push.ts`.
 
 Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (in `.env.local` and in the host's environment) to turn the link on. Without them the app is fully local.
 

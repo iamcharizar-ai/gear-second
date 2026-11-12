@@ -244,7 +244,8 @@ ledger.start()
 // so all Strong does is nudge it once the workout row has had time to land. The call changes nothing it
 // has already sent, so extra nudges are harmless; a missed one is caught by Life OS's daily run.
 const LIFEOS_URL = ((import.meta.env.VITE_LIFEOS_URL as string | undefined) ?? 'https://redesign-life-os-ui.vercel.app').replace(/\/$/, '')
-const HEALTH_PUSH = !LEDGER_OFF && Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
+// Off unless VITE_HEALTH_PUSH=1: the Fitbit Air already logs each workout in Google Health, so a second copy would be a duplicate.
+const HEALTH_PUSH = import.meta.env.VITE_HEALTH_PUSH === '1' && !LEDGER_OFF && Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
 let healthTimer: ReturnType<typeof setTimeout> | undefined
 function pingHealth(delayMs: number) {
   if (!HEALTH_PUSH) return
